@@ -1,13 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Estas dos variables vienen del archivo .env (ver .env.example y el README).
-const url = import.meta.env.VITE_SUPABASE_URL;
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!url || !key) {
-  console.warn(
-    "Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY. Revisa tu archivo .env."
-  );
-}
+const url = "https://cedqmpndpxmckwmqqylb.supabase.co";
+const key =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZHFtcG5kcHhtY2t3bXFxeWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NTUzMTAsImV4cCI6MjEwMDIzMTMxMH0.vUQXtX-YMydu90IOsJrsPDA_Q99J_Wr-cSIoRBAAi14";
 
 export const supabase = createClient(url, key);
