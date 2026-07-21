@@ -1,31 +1,9 @@
--- ============================================================
--- NEXUS · ELITE — Esquema de base de datos (Supabase / Postgres)
--- Copia y pega TODO esto en Supabase: menú "SQL Editor" > "New query" > Run.
--- ============================================================
+import { createClient } from "@supabase/supabase-js";
 
--- Tabla única llave-valor. Guarda tanto los pasos del checklist de cada
--- agente (steps:...) como su registro diario (chk:...:fecha).
-create table if not exists public.kv (
-  key        text primary key,
-  value      text not null,
-  updated_at timestamptz not null default now()
-);
+// Datos de tu proyecto Supabase puestos directamente aquí.
+// (La clave anon public está diseñada para el navegador; es una app interna del equipo.)
+const url = "https://cedqmpndpxmckwmqqylb.supabase.co";
+const key =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZHFtcG5kcHhtY2t3bXFxeWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NTUzMTAsImV4cCI6MjEwMDIzMTMxMH0.vUQXtX-YMydu90IOsJrsPDA_Q99J_Wr-cSIoRBAAi14";
 
--- Activar seguridad a nivel de fila.
-alter table public.kv enable row level security;
-
--- ------------------------------------------------------------
--- Política de acceso.
--- Como el login es por nombre (sin usuario/contraseña de Supabase),
--- se permite lectura y escritura con la llave pública (anon).
--- Es una herramienta interna del equipo; cualquiera con el enlace
--- puede leer y escribir. Si más adelante quieres proteger por
--- contraseña, se cambia esta política.
--- ------------------------------------------------------------
-drop policy if exists "acceso equipo nexus" on public.kv;
-create policy "acceso equipo nexus"
-  on public.kv
-  for all
-  to anon
-  using (true)
-  with check (true);
+export const supabase = createClient(url, key);
