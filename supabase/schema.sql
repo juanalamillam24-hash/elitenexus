@@ -1,9 +1,15 @@
-import { createClient } from "@supabase/supabase-js";
+create table if not exists public.kv (
+  key        text primary key,
+  value      text not null,
+  updated_at timestamptz not null default now()
+);
 
-// Datos de tu proyecto Supabase puestos directamente aquí.
-// (La clave anon public está diseñada para el navegador; es una app interna del equipo.)
-const url = "https://cedqmpndpxmckwmqqylb.supabase.co";
-const key =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZHFtcG5kcHhtY2t3bXFxeWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NTUzMTAsImV4cCI6MjEwMDIzMTMxMH0.vUQXtX-YMydu90IOsJrsPDA_Q99J_Wr-cSIoRBAAi14";
+alter table public.kv enable row level security;
 
-export const supabase = createClient(url, key);
+drop policy if exists "acceso equipo nexus" on public.kv;
+create policy "acceso equipo nexus"
+  on public.kv
+  for all
+  to anon
+  using (true)
+  with check (true);
