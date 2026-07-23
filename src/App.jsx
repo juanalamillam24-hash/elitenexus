@@ -39,6 +39,8 @@ const AGENTS = [
   "Yeisman Rojas Palomares Rojas",
   "Katherin Vanessa Esquibel Falla",
   "Adrian Eduardo Cubillos Franco",
+  "Juana Lamilla",
+  "Mariana Rujana",
 ];
 
 const DIRECTOR = { name: "Juana Lamilla", role: "Directora" };
@@ -261,13 +263,14 @@ function LoginScreen({ onLogin }) {
               padding: "14px 16px",
               borderRadius: 12,
               border: `1.5px solid ${GOLD}`,
-              background: GOLD_LIGHT,
+              background: "linear-gradient(135deg, #F7D7E3 0%, #F3B7CE 100%)",
               color: GOLD_DARK,
               fontWeight: 700,
               fontSize: 15,
               marginBottom: 20,
               cursor: "pointer",
               letterSpacing: 0.3,
+              boxShadow: "0 2px 10px rgba(214,110,150,0.25)",
             }}
           >
             ★ Entrar como {DIRECTOR.name} (Directora)
