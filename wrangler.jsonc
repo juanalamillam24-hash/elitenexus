@@ -1,0 +1,11 @@
+{
+  // Proyecto de Cloudflare Workers que sirve un sitio estático (SPA de Vite).
+  // Con "assets" y sin "main", wrangler publica el contenido de ./dist
+  // como sitio estático, sin necesitar la integración Vite+Workers (Vite 6+).
+  "name": "elitenexus",
+  "compatibility_date": "2025-07-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
