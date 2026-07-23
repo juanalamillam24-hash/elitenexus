@@ -1,8 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// base debe ser el nombre del repositorio entre barras, para GitHub Pages.
+// En Cloudflare Pages el sitio se sirve desde la raíz del dominio.
 export default defineConfig({
   plugins: [react()],
-  base: "/elitenexus/",
+  base: "/",
 });
