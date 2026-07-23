@@ -39,6 +39,7 @@ const AGENTS = [
   "Yeisman Rojas Palomares Rojas",
   "Katherin Vanessa Esquibel Falla",
   "Adrian Eduardo Cubillos Franco",
+  "Juana Lamilla",
 ];
 
 const DIRECTOR = { name: "Juana Lamilla", role: "Directora" };
