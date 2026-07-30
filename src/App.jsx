@@ -322,6 +322,14 @@ function LoginScreen({ onLogin }) {
             )}
           </div>
         </div>
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <a
+            href="#registros"
+            style={{ fontSize: 12, color: MUTED, textDecoration: "none", letterSpacing: 0.4 }}
+          >
+            Registros · {EVENTO_TITULO}
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -952,10 +960,364 @@ function StatPill({ label, value, accent }) {
 }
 
 /* ==================================================================
+   EVENTO · NOCHE DE EXPERIENCIAS
+================================================================== */
+const EVENTO_SLUG = "noche-experiencias";
+const EVENTO_TITULO = "NOCHE DE EXPERIENCIAS";
+const CLAVE_KEY = "config:clave-registros";
+
+function isEmail(str) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str.trim());
+}
+
+/* ---------------- Formulario público de registro ---------------- */
+function RegistroForm() {
+  const [nombre, setNombre] = useState("");
+  const [celular, setCelular] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [agente, setAgente] = useState("");
+  const [agenteOtro, setAgenteOtro] = useState("");
+  const [estado, setEstado] = useState("form"); // form | enviando | ok
+  const [error, setError] = useState("");
+
+  const submit = async () => {
+    setError("");
+    const nom = nombre.trim();
+    const cel = celular.trim();
+    const cor = correo.trim();
+    const ag = agente === "__otro__" ? agenteOtro.trim() : agente;
+    if (!nom) return setError("Escribe tu nombre.");
+    if (!cel) return setError("Escribe tu número de celular.");
+    if (!isEmail(cor)) return setError("Escribe un correo válido.");
+    if (!ag) return setError("Selecciona o escribe el agente que te invitó.");
+
+    setEstado("enviando");
+    try {
+      await storage.addRegistro({ evento: EVENTO_SLUG, nombre: nom, celular: cel, correo: cor, agente: ag });
+      setEstado("ok");
+    } catch {
+      setEstado("form");
+      setError("No se pudo enviar tu registro. Revisa tu conexión e inténtalo de nuevo.");
+    }
+  };
+
+  const field = {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 10,
+    border: `1px solid ${LINE}`,
+    fontSize: 15,
+    outline: "none",
+    boxSizing: "border-box",
+    marginBottom: 14,
+    background: "#fff",
+    color: INK,
+  };
+  const labelStyle = { fontSize: 12, color: MUTED, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6, display: "block" };
+
+  return (
+    <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ width: "100%", maxWidth: 440 }}>
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div style={{ fontSize: 12, letterSpacing: 3, color: GOLD_DARK, textTransform: "uppercase", marginBottom: 6 }}>
+            NEXUS · ELITE te invita
+          </div>
+          <div style={{ fontFamily: "Georgia, serif", fontWeight: 700, fontSize: 30, letterSpacing: 2, color: INK, lineHeight: 1.1 }}>
+            {EVENTO_TITULO}
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "#fff",
+            border: `1px solid ${LINE}`,
+            borderRadius: 18,
+            padding: 26,
+            boxShadow: "0 2px 18px rgba(184,144,43,0.08)",
+          }}
+        >
+          {estado === "ok" ? (
+            <div style={{ textAlign: "center", padding: "10px 0" }}>
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: "50%",
+                  background: GREEN_BG,
+                  color: GREEN,
+                  fontSize: 28,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 14px",
+                }}
+              >
+                ✓
+              </div>
+              <div style={{ fontFamily: "Georgia, serif", fontSize: 20, fontWeight: 700, color: INK, marginBottom: 6 }}>
+                ¡Registro confirmado!
+              </div>
+              <div style={{ fontSize: 14, color: MUTED }}>
+                Gracias, {nombre.trim()}. Te esperamos en la {EVENTO_TITULO.toLowerCase()}.
+              </div>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontSize: 14, color: MUTED, marginBottom: 18, textAlign: "center" }}>
+                Completa tus datos para reservar tu lugar.
+              </div>
+
+              {error && (
+                <div style={{ background: RED_BG, color: RED, fontSize: 13, padding: "9px 12px", borderRadius: 8, marginBottom: 14 }}>
+                  {error}
+                </div>
+              )}
+
+              <label style={labelStyle}>Nombre completo</label>
+              <input style={field} value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Tu nombre" />
+
+              <label style={labelStyle}>Número de celular</label>
+              <input
+                style={field}
+                value={celular}
+                onChange={(e) => setCelular(e.target.value)}
+                placeholder="Ej. 300 123 4567"
+                inputMode="tel"
+              />
+
+              <label style={labelStyle}>Correo electrónico</label>
+              <input
+                style={field}
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
+                placeholder="tucorreo@ejemplo.com"
+                inputMode="email"
+              />
+
+              <label style={labelStyle}>Agente que te invitó</label>
+              <select style={{ ...field, marginBottom: agente === "__otro__" ? 10 : 14 }} value={agente} onChange={(e) => setAgente(e.target.value)}>
+                <option value="">Selecciona…</option>
+                {AGENTS.map((a) => (
+                  <option key={a} value={a}>
+                    {a}
+                  </option>
+                ))}
+                <option value="__otro__">Otro / no aparece en la lista</option>
+              </select>
+              {agente === "__otro__" && (
+                <input
+                  style={field}
+                  value={agenteOtro}
+                  onChange={(e) => setAgenteOtro(e.target.value)}
+                  placeholder="Escribe el nombre del agente"
+                />
+              )}
+
+              <button
+                onClick={submit}
+                disabled={estado === "enviando"}
+                style={{
+                  width: "100%",
+                  padding: "14px 16px",
+                  borderRadius: 12,
+                  border: "none",
+                  background: estado === "enviando" ? GOLD_LIGHT : GOLD,
+                  color: estado === "enviando" ? GOLD_DARK : "#fff",
+                  fontWeight: 700,
+                  fontSize: 15,
+                  cursor: estado === "enviando" ? "default" : "pointer",
+                  marginTop: 4,
+                  letterSpacing: 0.3,
+                }}
+              >
+                {estado === "enviando" ? "Enviando…" : "Confirmar mi registro"}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Panel de registros (protegido por clave) ---------------- */
+function RegistrosPanel() {
+  const [autorizado, setAutorizado] = useState(false);
+  const [clave, setClave] = useState("");
+  const [error, setError] = useState("");
+  const [verificando, setVerificando] = useState(false);
+  const [rows, setRows] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const cargar = async () => {
+    setLoading(true);
+    try {
+      const data = await storage.listRegistros(EVENTO_SLUG);
+      setRows(data);
+    } catch {
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verificar = async () => {
+    setError("");
+    setVerificando(true);
+    try {
+      const res = await storage.get(CLAVE_KEY);
+      const claveGuardada = res ? res.value : null;
+      if (!claveGuardada) {
+        setError("Aún no se ha configurado la clave del panel. Contacta al administrador.");
+      } else if (clave.trim() === claveGuardada) {
+        setAutorizado(true);
+        cargar();
+      } else {
+        setError("Clave incorrecta.");
+      }
+    } catch {
+      setError("No se pudo verificar la clave. Revisa tu conexión.");
+    } finally {
+      setVerificando(false);
+    }
+  };
+
+  const exportCSV = () => {
+    if (!rows || rows.length === 0) return;
+    const headers = ["Nombre", "Celular", "Correo", "Agente que invitó", "Fecha"];
+    const lines = rows.map((r) =>
+      [r.nombre, r.celular, r.correo, r.agente, new Date(r.created_at).toLocaleString("es-CO")]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(",")
+    );
+    const csv = [headers.join(","), ...lines].join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `registros-${EVENTO_SLUG}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  if (!autorizado) {
+    return (
+      <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <div style={{ width: "100%", maxWidth: 380 }}>
+          <Masthead subtitle={`Registros · ${EVENTO_TITULO}`} />
+          <div style={{ background: "#fff", border: `1px solid ${LINE}`, borderRadius: 18, padding: 24, boxShadow: "0 2px 18px rgba(184,144,43,0.08)" }}>
+            <div style={{ fontSize: 13, color: MUTED, marginBottom: 12 }}>Ingresa la clave de directora para ver los registros.</div>
+            {error && (
+              <div style={{ background: RED_BG, color: RED, fontSize: 13, padding: "9px 12px", borderRadius: 8, marginBottom: 12 }}>{error}</div>
+            )}
+            <input
+              type="password"
+              value={clave}
+              onChange={(e) => setClave(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && verificar()}
+              placeholder="Clave"
+              style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `1px solid ${LINE}`, fontSize: 15, outline: "none", boxSizing: "border-box", marginBottom: 14 }}
+            />
+            <button
+              onClick={verificar}
+              disabled={verificando}
+              style={{ width: "100%", padding: "13px 16px", borderRadius: 12, border: "none", background: GOLD, color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}
+            >
+              {verificando ? "Verificando…" : "Entrar"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", background: BG, padding: "24px 16px 60px" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ fontFamily: "Georgia, serif", fontSize: 22, fontWeight: 700, color: INK }}>{EVENTO_TITULO}</div>
+            <div style={{ fontSize: 13, color: MUTED, marginTop: 2 }}>
+              Registros del evento · {rows ? rows.length : 0} persona{rows && rows.length === 1 ? "" : "s"}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              onClick={cargar}
+              style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${LINE}`, background: "#fff", color: MUTED, fontSize: 13, cursor: "pointer" }}
+            >
+              Actualizar
+            </button>
+            <button
+              onClick={exportCSV}
+              style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${GOLD}`, background: GOLD_PALE, color: GOLD_DARK, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+            >
+              Descargar CSV
+            </button>
+          </div>
+        </div>
+
+        {loading || rows === null ? (
+          <div style={{ color: MUTED, fontSize: 14, padding: "40px 0", textAlign: "center" }}>Cargando registros…</div>
+        ) : rows.length === 0 ? (
+          <div style={{ background: "#fff", border: `1px solid ${LINE}`, borderRadius: 16, padding: "40px 20px", textAlign: "center", color: MUTED, fontSize: 14 }}>
+            Aún no hay registros para este evento.
+          </div>
+        ) : (
+          <div style={{ background: "#fff", border: `1px solid ${LINE}`, borderRadius: 16, overflow: "hidden" }}>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 620 }}>
+                <thead>
+                  <tr style={{ background: GOLD_PALE, color: GOLD_DARK, textAlign: "left" }}>
+                    <th style={{ padding: "11px 14px", fontWeight: 700 }}>#</th>
+                    <th style={{ padding: "11px 14px", fontWeight: 700 }}>Nombre</th>
+                    <th style={{ padding: "11px 14px", fontWeight: 700 }}>Celular</th>
+                    <th style={{ padding: "11px 14px", fontWeight: 700 }}>Correo</th>
+                    <th style={{ padding: "11px 14px", fontWeight: 700 }}>Agente que invitó</th>
+                    <th style={{ padding: "11px 14px", fontWeight: 700 }}>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r, i) => (
+                    <tr key={r.id} style={{ borderTop: `1px solid ${LINE}` }}>
+                      <td style={{ padding: "10px 14px", color: MUTED }}>{i + 1}</td>
+                      <td style={{ padding: "10px 14px", color: INK, fontWeight: 600 }}>{r.nombre}</td>
+                      <td style={{ padding: "10px 14px", color: INK }}>{r.celular}</td>
+                      <td style={{ padding: "10px 14px", color: INK }}>{r.correo}</td>
+                      <td style={{ padding: "10px 14px", color: INK }}>{r.agente}</td>
+                      <td style={{ padding: "10px 14px", color: MUTED }}>{new Date(r.created_at).toLocaleString("es-CO")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ==================================================================
    ROOT
 ================================================================== */
+function useHashRoute() {
+  const [hash, setHash] = useState(() => window.location.hash.replace(/^#\/?/, ""));
+  useEffect(() => {
+    const onChange = () => setHash(window.location.hash.replace(/^#\/?/, ""));
+    window.addEventListener("hashchange", onChange);
+    return () => window.removeEventListener("hashchange", onChange);
+  }, []);
+  return hash;
+}
+
 export default function App() {
+  const route = useHashRoute();
   const [user, setUser] = useState(null);
+
+  // Rutas públicas / especiales (no requieren login de agente).
+  if (route === "registro") return <RegistroForm />;
+  if (route === "registros" || route === "panel") return <RegistrosPanel />;
 
   if (!user) return <LoginScreen onLogin={setUser} />;
   if (user.isDirector) return <DirectorView user={user} onLogout={() => setUser(null)} />;
