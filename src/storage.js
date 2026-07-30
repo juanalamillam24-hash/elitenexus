@@ -27,4 +27,25 @@ export async function set(key, value) {
   return true;
 }
 
-export default { get, set };
+/*
+  Registros de eventos (tabla "registros").
+  Cada registro es una fila propia, así varias personas pueden registrarse
+  al mismo tiempo sin pisarse los datos.
+*/
+export async function addRegistro(registro) {
+  const { error } = await supabase.from("registros").insert(registro);
+  if (error) throw error;
+  return true;
+}
+
+export async function listRegistros(evento) {
+  const { data, error } = await supabase
+    .from("registros")
+    .select("*")
+    .eq("evento", evento)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export default { get, set, addRegistro, listRegistros };
