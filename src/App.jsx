@@ -976,7 +976,6 @@ function RegistroForm() {
   const [celular, setCelular] = useState("");
   const [correo, setCorreo] = useState("");
   const [agente, setAgente] = useState("");
-  const [agenteOtro, setAgenteOtro] = useState("");
   const [estado, setEstado] = useState("form"); // form | enviando | ok
   const [error, setError] = useState("");
 
@@ -985,11 +984,11 @@ function RegistroForm() {
     const nom = nombre.trim();
     const cel = celular.trim();
     const cor = correo.trim();
-    const ag = agente === "__otro__" ? agenteOtro.trim() : agente;
+    const ag = agente.trim();
     if (!nom) return setError("Escribe tu nombre.");
     if (!cel) return setError("Escribe tu número de celular.");
     if (!isEmail(cor)) return setError("Escribe un correo válido.");
-    if (!ag) return setError("Selecciona o escribe el agente que te invitó.");
+    if (!ag) return setError("Escribe el nombre del agente que te invitó.");
 
     setEstado("enviando");
     try {
@@ -1095,23 +1094,12 @@ function RegistroForm() {
               />
 
               <label style={labelStyle}>Agente que te invitó</label>
-              <select style={{ ...field, marginBottom: agente === "__otro__" ? 10 : 14 }} value={agente} onChange={(e) => setAgente(e.target.value)}>
-                <option value="">Selecciona…</option>
-                {AGENTS.map((a) => (
-                  <option key={a} value={a}>
-                    {a}
-                  </option>
-                ))}
-                <option value="__otro__">Otro / no aparece en la lista</option>
-              </select>
-              {agente === "__otro__" && (
-                <input
-                  style={field}
-                  value={agenteOtro}
-                  onChange={(e) => setAgenteOtro(e.target.value)}
-                  placeholder="Escribe el nombre del agente"
-                />
-              )}
+              <input
+                style={field}
+                value={agente}
+                onChange={(e) => setAgente(e.target.value)}
+                placeholder="Escribe el nombre del agente"
+              />
 
               <button
                 onClick={submit}
